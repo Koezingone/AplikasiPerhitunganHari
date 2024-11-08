@@ -7,13 +7,86 @@
  *
  * @author ACER
  */
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
+import java.time.YearMonth;
+import javax.swing.*;
+
+
 public class PerhitunganHariFrame extends javax.swing.JFrame {
 
     /**
      * Creates new form PerhitunganHariFrame
      */
+    
     public PerhitunganHariFrame() {
         initComponents();
+    // Listener pada JSpinner untuk input tahun
+        jSpinner1.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                hitungJumlahHari();
+            }
+        });
+
+        // Listener pada JComboBox untuk input bulan
+        jComboBox1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hitungJumlahHari();
+            }
+        });
+
+        // Listener pada JCalendar untuk mendapatkan tanggal yang dipilih
+        jCalendar1.addPropertyChangeListener(evt -> {    
+            if ("calendar".equals(evt.getPropertyName())) {
+                hitungJumlahHari();
+            }
+        });
+        
+    jCalendar1.addPropertyChangeListener(evt -> {    
+    if ("calendar".equals(evt.getPropertyName())) {
+        // Ambil tanggal yang dipilih dari JCalendar
+        java.util.Date selectedDate = jCalendar1.getDate();
+        LocalDate localDate = selectedDate.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+
+        // Ambil bulan dan tahun dari JComboBox dan JSpinner
+        int bulan = jComboBox1.getSelectedIndex() + 1; // ComboBox months (1-12)
+        int tahun = (int) jSpinner1.getValue(); // Get year from JSpinner (ensure it's cast to int)
+
+        // Validasi dan pembuatan LocalDate dari JComboBox dan JSpinner
+        YearMonth yearMonth = YearMonth.of(tahun, bulan);
+        int jumlahHari = yearMonth.lengthOfMonth(); // Get the number of days in the selected month
+
+        int day = localDate.getDayOfMonth();
+        if (day <= 0 || day > jumlahHari) {
+            JOptionPane.showMessageDialog(this, "Tanggal tidak valid untuk bulan tersebut.");
+            return;
+        }
+
+        LocalDate selectedComboDate = LocalDate.of(tahun, bulan, 1); // Start date for the selected month
+
+        // Menampilkan jumlah hari dan tanggal pertama/terakhir bulan tersebut di jTextArea1
+        LocalDate firstDayOfMonth = yearMonth.atDay(1); // First day of the selected month
+        LocalDate lastDayOfMonth = yearMonth.atEndOfMonth(); // Last day of the selected month
+
+        jTextArea1.setText("Jumlah Hari: " + jumlahHari + "\n");
+        jTextArea1.append("Hari Pertama: " + firstDayOfMonth.getDayOfWeek() + "\n");
+        jTextArea1.append("Hari Terakhir: " + lastDayOfMonth.getDayOfWeek() + "\n");
+
+        // Menghitung selisih hari antara tanggal yang dipilih di JComboBox+JSpinner dan tanggal di JCalendar
+        long daysBetween = ChronoUnit.DAYS.between(selectedComboDate, localDate);
+
+        // Menampilkan selisih hari di jTextArea1
+        jTextArea1.append("Selisih Hari dari Tanggal Pilihan ke Tanggal Terpilih: " + daysBetween + " hari\n");
+    }
+});
+
     }
 
     /**
@@ -29,9 +102,13 @@ public class PerhitunganHariFrame extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
-        jSpinField1 = new com.toedter.components.JSpinField();
-        jButton1 = new javax.swing.JButton();
-        jCalendar2 = new com.toedter.calendar.JCalendar();
+        btnHitung = new javax.swing.JButton();
+        btnHapus = new javax.swing.JButton();
+        btnKeluar = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jCalendar1 = new com.toedter.calendar.JCalendar();
+        jSpinner1 = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -49,52 +126,87 @@ public class PerhitunganHariFrame extends javax.swing.JFrame {
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Pilih Tahun :");
 
-        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jButton1.setText("Hitung");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnHitung.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnHitung.setText("Hitung");
+        btnHitung.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnHitungActionPerformed(evt);
             }
         });
+
+        btnHapus.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnHapus.setText("Hapus");
+        btnHapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusActionPerformed(evt);
+            }
+        });
+
+        btnKeluar.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnKeluar.setText("Keluar");
+        btnKeluar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnKeluarActionPerformed(evt);
+            }
+        });
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSpinField1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
-                .addComponent(jCalendar2, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(7, 7, 7))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(151, 151, 151)
-                .addComponent(jButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1)
+                                    .addComponent(jLabel2))
+                                .addGap(138, 138, 138)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jSpinner1)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnHitung)
+                                .addGap(31, 31, 31)
+                                .addComponent(btnHapus)))
+                        .addGap(57, 57, 57)
+                        .addComponent(jCalendar1, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(45, 45, 45)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 396, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(15, 15, 15)
+                        .addComponent(btnKeluar)))
+                .addContainerGap(129, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(45, 45, 45)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jCalendar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1)
                             .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(23, 23, 23)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2)
-                            .addComponent(jSpinField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jCalendar2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(83, 83, 83))
+                            .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(41, 41, 41)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnHitung)
+                            .addComponent(btnHapus))))
+                .addGap(48, 48, 48)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnKeluar)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(90, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -110,17 +222,62 @@ public class PerhitunganHariFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void btnHitungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHitungActionPerformed
+    hitungJumlahHari();
+    }//GEN-LAST:event_btnHitungActionPerformed
 
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        jComboBox1.setSelectedIndex(0);
+        jSpinner1.setValue(LocalDate.now().getYear());
+        jCalendar1.setDate(java.util.Date.from(LocalDate.now().atStartOfDay(java.time.ZoneId.systemDefault()).toInstant()));
+        jTextArea1.setText("");
+    }//GEN-LAST:event_btnHapusActionPerformed
+
+    private void btnKeluarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKeluarActionPerformed
+    System.exit(0);
+    }//GEN-LAST:event_btnKeluarActionPerformed
+
+    private void hitungJumlahHari() {
+    // Ambil bulan dan tahun dari JComboBox dan JSpinner
+        int bulan = jComboBox1.getSelectedIndex() + 1; // bulan dari JComboBox (1-12)
+        int tahun = (int) jSpinner1.getValue(); // Casting for integer value from JSpinner
+
+        // Ambil tanggal yang dipilih dari JCalendar
+        java.util.Date selectedDate = jCalendar1.getDate();
+        if (selectedDate == null) {
+            JOptionPane.showMessageDialog(this, "Pilih tanggal terlebih dahulu di JCalendar.");
+            return;
+        }
+        LocalDate dateFromCalendar = selectedDate.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+
+        // Ambil jumlah hari dalam bulan
+        YearMonth yearMonth = YearMonth.of(tahun, bulan);
+        int jumlahHari = yearMonth.lengthOfMonth();
+
+        // Tampilkan jumlah hari, hari pertama, dan hari terakhir bulan tersebut
+        LocalDate firstDayOfMonth = yearMonth.atDay(1);
+        LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+
+        jTextArea1.setText("Jumlah Hari: " + jumlahHari + "\n");
+        jTextArea1.append("Hari Pertama: " + firstDayOfMonth.getDayOfWeek() + "\n");
+        jTextArea1.append("Hari Terakhir: " + lastDayOfMonth.getDayOfWeek() + "\n");
+
+        // Menghitung selisih hari antara tanggal dari JComboBox/JSpinner dan tanggal dari JCalendar
+        LocalDate dateFromComboBoxAndSpinner = LocalDate.of(tahun, bulan, 1);
+        long daysBetween = ChronoUnit.DAYS.between(dateFromComboBoxAndSpinner, dateFromCalendar);
+
+        // Tampilkan selisih hari
+        jTextArea1.append("Selisih Jumlah Hari : " + daysBetween + " hari\n");
+}
+
+    
     /**
      * @param args the command line arguments
      */
@@ -157,12 +314,16 @@ public class PerhitunganHariFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private com.toedter.calendar.JCalendar jCalendar2;
+    private javax.swing.JButton btnHapus;
+    private javax.swing.JButton btnHitung;
+    private javax.swing.JButton btnKeluar;
+    private com.toedter.calendar.JCalendar jCalendar1;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private com.toedter.components.JSpinField jSpinField1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSpinner jSpinner1;
+    private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
 }
