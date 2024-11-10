@@ -12,10 +12,10 @@ import java.awt.event.ActionListener;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import java.time.LocalDate;
-import java.time.Month;
-import java.time.temporal.ChronoUnit;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import javax.swing.*;
+
 
 
 public class PerhitunganHariFrame extends javax.swing.JFrame {
@@ -30,11 +30,12 @@ public class PerhitunganHariFrame extends javax.swing.JFrame {
         jSpinner1.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                sinkronkanJCalendar();
                 hitungJumlahHari();
             }
         });
 
-        // Listener pada JComboBox untuk input bulan
+        // Listener untuk bulan di JComboBox
         jComboBox1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -42,51 +43,38 @@ public class PerhitunganHariFrame extends javax.swing.JFrame {
             }
         });
 
-        // Listener pada JCalendar untuk mendapatkan tanggal yang dipilih
-        jCalendar1.addPropertyChangeListener(evt -> {    
+        // Listener pada JCalendar untuk sinkronisasi dengan JSpinner dan menghitung hari
+        jCalendar1.addPropertyChangeListener(evt -> {
             if ("calendar".equals(evt.getPropertyName())) {
                 hitungJumlahHari();
             }
         });
-        
-    jCalendar1.addPropertyChangeListener(evt -> {    
-    if ("calendar".equals(evt.getPropertyName())) {
-        // Ambil tanggal yang dipilih dari JCalendar
-        java.util.Date selectedDate = jCalendar1.getDate();
-        LocalDate localDate = selectedDate.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
 
-        // Ambil bulan dan tahun dari JComboBox dan JSpinner
-        int bulan = jComboBox1.getSelectedIndex() + 1; // ComboBox months (1-12)
-        int tahun = (int) jSpinner1.getValue(); // Get year from JSpinner (ensure it's cast to int)
-
-        // Validasi dan pembuatan LocalDate dari JComboBox dan JSpinner
-        YearMonth yearMonth = YearMonth.of(tahun, bulan);
-        int jumlahHari = yearMonth.lengthOfMonth(); // Get the number of days in the selected month
-
-        int day = localDate.getDayOfMonth();
-        if (day <= 0 || day > jumlahHari) {
-            JOptionPane.showMessageDialog(this, "Tanggal tidak valid untuk bulan tersebut.");
-            return;
-        }
-
-        LocalDate selectedComboDate = LocalDate.of(tahun, bulan, 1); // Start date for the selected month
-
-        // Menampilkan jumlah hari dan tanggal pertama/terakhir bulan tersebut di jTextArea1
-        LocalDate firstDayOfMonth = yearMonth.atDay(1); // First day of the selected month
-        LocalDate lastDayOfMonth = yearMonth.atEndOfMonth(); // Last day of the selected month
-
-        jTextArea1.setText("Jumlah Hari: " + jumlahHari + "\n");
-        jTextArea1.append("Hari Pertama: " + firstDayOfMonth.getDayOfWeek() + "\n");
-        jTextArea1.append("Hari Terakhir: " + lastDayOfMonth.getDayOfWeek() + "\n");
-
-        // Menghitung selisih hari antara tanggal yang dipilih di JComboBox+JSpinner dan tanggal di JCalendar
-        long daysBetween = ChronoUnit.DAYS.between(selectedComboDate, localDate);
-
-        // Menampilkan selisih hari di jTextArea1
-        jTextArea1.append("Selisih Hari dari Tanggal Pilihan ke Tanggal Terpilih: " + daysBetween + " hari\n");
+        // Panggil sinkronkanJCalendar saat jSpinner atau jComboBox berubah
+jSpinner1.addChangeListener(new ChangeListener() {
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        sinkronkanJCalendar();
     }
 });
 
+jComboBox1.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        sinkronkanJCalendar();
+    }
+});
+
+// Tambahkan ke jCalendar1 listener untuk sinkronisasi juga dengan spinner jika tanggal dipilih secara manual
+jCalendar1.addPropertyChangeListener(evt -> {
+    if ("calendar".equals(evt.getPropertyName())) {
+        int tahun = jCalendar1.getCalendar().get(java.util.Calendar.YEAR);
+        int bulan = jCalendar1.getCalendar().get(java.util.Calendar.MONTH);
+        jSpinner1.setValue(tahun);  // Sinkronkan dengan tahun di spinner
+        jComboBox1.setSelectedIndex(bulan);  // Sinkronkan bulan di combobox
+        hitungJumlahHari();  // Hitung jumlah hari saat kalender berubah
+    }
+});
     }
 
     /**
@@ -255,7 +243,9 @@ public class PerhitunganHariFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnHitungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHitungActionPerformed
+
     hitungJumlahHari();
+    hitungSelisihHari();
     }//GEN-LAST:event_btnHitungActionPerformed
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
@@ -269,38 +259,54 @@ public class PerhitunganHariFrame extends javax.swing.JFrame {
     System.exit(0);
     }//GEN-LAST:event_btnKeluarActionPerformed
 
-    private void hitungJumlahHari() {
-    // Ambil bulan dan tahun dari JComboBox dan JSpinner
-        int bulan = jComboBox1.getSelectedIndex() + 1; // bulan dari JComboBox (1-12)
-        int tahun = (int) jSpinner1.getValue(); // Casting for integer value from JSpinner
+    private void sinkronkanJCalendar() {
+     int tahun = (int) jSpinner1.getValue();
+    int bulan = jComboBox1.getSelectedIndex() + 1;
+    LocalDate newDate = LocalDate.of(tahun, bulan, 1);
+    jCalendar1.setDate(java.util.Date.from(newDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant()));
+    hitungJumlahHari(); // Update jumlah hari saat bulan atau tahun berubah
+    }
 
-        // Ambil tanggal yang dipilih dari JCalendar
-        java.util.Date selectedDate = jCalendar1.getDate();
-        if (selectedDate == null) {
-            JOptionPane.showMessageDialog(this, "Pilih tanggal terlebih dahulu di JCalendar.");
-            return;
-        }
-        LocalDate dateFromCalendar = selectedDate.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+    
+    private void hitungJumlahHari() {
+     // Ambil bulan dan tahun dari JComboBox dan JSpinner
+        int bulan = jComboBox1.getSelectedIndex() + 1;
+        int tahun = (int) jSpinner1.getValue();
 
         // Ambil jumlah hari dalam bulan
         YearMonth yearMonth = YearMonth.of(tahun, bulan);
         int jumlahHari = yearMonth.lengthOfMonth();
 
-        // Tampilkan jumlah hari, hari pertama, dan hari terakhir bulan tersebut
+        // Menampilkan jumlah hari, hari pertama, dan hari terakhir bulan tersebut
         LocalDate firstDayOfMonth = yearMonth.atDay(1);
         LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
 
         jTextArea1.setText("Jumlah Hari: " + jumlahHari + "\n");
         jTextArea1.append("Hari Pertama: " + firstDayOfMonth.getDayOfWeek() + "\n");
         jTextArea1.append("Hari Terakhir: " + lastDayOfMonth.getDayOfWeek() + "\n");
-
-        // Menghitung selisih hari antara tanggal dari JComboBox/JSpinner dan tanggal dari JCalendar
-        LocalDate dateFromComboBoxAndSpinner = LocalDate.of(tahun, bulan, 1);
-        long daysBetween = ChronoUnit.DAYS.between(dateFromComboBoxAndSpinner, dateFromCalendar);
-
-        // Tampilkan selisih hari
-        jTextArea1.append("Selisih Jumlah Hari : " + daysBetween + " hari\n");
 }
+
+    
+
+    // Method to calculate the difference in days between jCalendar1 and jCalendar2
+    private void hitungSelisihHari() {
+        java.util.Date date1 = jCalendar1.getDate();
+        java.util.Date date2 = jCalendar2.getDate();
+
+        if (date1 == null || date2 == null) {
+            jTextArea1.setText("Pilih kedua tanggal pada JCalendar.");
+            return;
+        }
+
+        LocalDate localDate1 = date1.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate2 = date2.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        
+        long daysBetween = ChronoUnit.DAYS.between(localDate1, localDate2);
+
+        jTextArea1.setText("Selisih Hari antara Tanggal 1 dan Tanggal 2: " + Math.abs(daysBetween) + " hari\n");
+    }
+
+   
 
     
     /**
