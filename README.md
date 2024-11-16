@@ -1,28 +1,24 @@
-# Aplikasi Pertambahan Dua Angka
+# Aplikasi Perhitungan Hari
 
-**Aplikasi Pertambahan Dua Angka** adalah aplikasi Java yang memungkinkan pengguna untuk memasukkan dua angka dan menghitung hasil penjumlahannya. Program ini juga dilengkapi dengan fitur untuk membersihkan input setelah klik tombol "Hapus" dan memberikan konfirmasi keluar aplikasi menggunakan tombol "Keluar". Aplikasi ini juga menerapkan pembatasan input hanya untuk angka.
+**Aplikasi Perhitungan Hari** adalah aplikasi Java berbasis GUI yang memungkinkan pengguna untuk menghitung jumlah hari dalam bulan tertentu dan selisih hari antara dua tanggal yang dipilih. Aplikasi ini menggunakan komponen Swing dan JCalendar untuk memudahkan pengguna dalam memilih tanggal dan melakukan perhitungan.
 
 ## Fitur Aplikasi
 
-- Menghitung hasil pertambahan dua angka yang dimasukkan
-- Membersihkan input setelah tombol "Hapus" ditekan
-- Menutup aplikasi saat tombol "Keluar" ditekan
-- Pembatasan input hanya angka menggunakan `KeyAdapter`
-- Menampilkan pesan kesalahan jika input bukan angka menggunakan `JOptionPane`
-- Menghapus nilai pada kolom input dan mengatur fokus pada kolom input pertama menggunakan `FocusListener`
+- Menghitung Jumlah Hari: Menampilkan jumlah hari dalam bulan tertentu berdasarkan input tahun dan bulan yang dipilih pengguna.
+- Hitung Selisih Hari: Menghitung selisih hari antara dua tanggal yang dipilih menggunakan JCalendar.
+- Sinkronisasi Kalender: JCalendar akan secara otomatis sinkron dengan perubahan tahun dan bulan yang dipilih melalui komponen JComboBox dan JSpinner.
+- Reset Input: Menghapus semua input dan mengatur ulang ke pengaturan default saat tombol "Hapus" ditekan.
+- Keluar Aplikasi: Menutup aplikasi saat tombol "Keluar" ditekan.
 
 ## Komponen Utama
 
-- **JFrame, JPanel, JLabel, JTextField, JButton** untuk membuat antarmuka pengguna grafis (GUI).
-- **KeyAdapter** digunakan untuk membatasi input hanya angka di **JTextField**.
-- **JOptionPane** untuk menampilkan pesan error ketika input tidak valid.
-- **FocusListener** untuk membersihkan **JTextField** saat mendapatkan fokus.
+- **JFrame, JPanel, JLabel, JComboBox, JButton, JCalender, JSpinner** untuk membuat antarmuka pengguna grafis (GUI).
 
 ## Cara Menggunakan
 
-1. Masukkan dua angka yang ingin dijumlahkan pada kolom **Angka 1** dan **Angka 2**.
-2. Klik tombol **TAMBAH** untuk menghitung hasil penjumlahan.
-3. Klik tombol **HAPUS** untuk menghapus input dan mengatur fokus pada kolom **Angka 1**.
+1. Pilih bulan yang diinginkan melalui dropdown **Pilih Bulan**.
+2. Masukkan tahun menggunakan spinner **Pilih Tahun** dan Tanggal di JCalendar akan otomatis diperbarui dan informasi jumlah hari akan muncul di JTextArea.
+3. Pilih tanggal pertama melalui **JCalendar di sisi atas** lalu Pilih tanggal kedua melalui **JCalendar di sisi bawah**. Klik tombol **Hitung** untuk melihat selisih hari antara kedua tanggal.
 4. Klik tombol **KELUAR** untuk menutup aplikasi.
 
 ## Authors
